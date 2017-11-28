@@ -113,7 +113,7 @@ function Get-WLANProfile
 					}
 					elseif($IsSecurity -eq 3) # Get the password
 					{
-						$WLAN_Password_PlainText = $Line.Split(':')[1].Trim()
+						$WLAN_Password = $Line.Split(':')[1].Trim()
 					}
 				
 					$IsSecurity += 1   
@@ -125,24 +125,7 @@ function Get-WLANProfile
 				}   
 			}
 
-			# As SecureString or plain text
-			if($ShowPassword) 
-			{
-				$WLAN_Password = $WLAN_Password_PlainText
-			}
-			else
-			{
-				$WLAN_Password = $WLAN_Password_PlainText
-			}
-
-			# Built the custom PSObject
-			$WLAN_Profile = [pscustomobject] @{
-				Name = $WLAN_Name
-				SSID = $WLAN_SSID
-				Authentication = $WLAN_Authentication
-				Password = $WLAN_Password
-			}
-			Write-Output "$($WLAN_Name)::$($WLAN_Password)"
+			Write-Output "$($WLAN_Name)::$($WLAN_SSID)::$($WLAN_Authentication)::$($WLAN_Password)"
 		}
 	}
 
