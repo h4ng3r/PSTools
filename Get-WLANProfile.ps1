@@ -142,20 +142,7 @@ function Get-WLANProfile
 				Authentication = $WLAN_Authentication
 				Password = $WLAN_Password
 			}
-			Write-Output $WLAN_Name + "::" + $WLAN_Password
-
-			# Add the custom PSObject to the array
-			if($PSBoundParameters.ContainsKey('Search'))
-			{
-				if((($WLAN_Profile.Name -like $Search) -or ($WLAN_Profile.SSID -like $Search)) -and (-not($ExactMatch) -or ($WLAN_Profile.Name -eq $Search) -or ($WLAN_Profile.SSID -eq $Search)))
-				{
-					$WLAN_Profile
-				} 
-			}
-			else
-			{
-				$WLAN_Profile
-			}        
+			Write-Output "$($WLAN_Name)::$($WLAN_Password)"
 		}
 	}
 
