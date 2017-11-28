@@ -99,17 +99,18 @@ function Get-WLANProfile
 				}   
 			}
 
-      $WLAN_Password = $WLAN_Password_PlainText
+		$WLAN_Password = $WLAN_Password_PlainText
 
-			# Built the custom PSObject
-			$WLAN_Profile = [pscustomobject] @{
-				Name = $WLAN_Name
-				SSID = $WLAN_SSID
-				Authentication = $WLAN_Authentication
-				Password = $WLAN_Password
-			}
+		# Built the custom PSObject
+		$WLAN_Profile = [pscustomobject] @{
+			Name = $WLAN_Name
+			SSID = $WLAN_SSID
+			Authentication = $WLAN_Authentication
+			Password = $WLAN_Password
+		}
 
       $WLAN_Profile
+  	}
 			
 	}
 
