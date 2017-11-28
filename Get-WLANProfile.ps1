@@ -17,6 +17,14 @@
 
     .EXAMPLE
     Get-WLANProfile
+
+	Name              SSID               Authentification    Password
+	----              ----               ---------------     ------
+	MyHomeNetwork01   MyHomeNetwork      WPA2-Personal       System.Security.SecureString
+	MyHomeNetwork02   MyHomenetwork5G    WPA2-Personal       System.Security.SecureString
+	
+    .EXAMPLE
+    Get-WLANProfile -ShowPassword
        
 	Name              SSID               Authentification    Password
 	----              ----               ---------------     ------
@@ -29,6 +37,24 @@
 
 function Get-WLANProfile
 {
+	[CmdletBinding()]
+	param(
+		[Parameter(
+			Position=0,
+			HelpMessage='Indicates that the password appears in plain text')]
+		[Switch]$ShowPassword,
+		
+		[Parameter(
+			Position=1,
+			HelpMessage='Filter WLAN-Profiles by Name or SSID')]
+		[String]$Search,
+
+		[Parameter(
+			Position=2,
+			HelpMessage='Exact match, when filter WLAN-Profiles by Name or SSID')]
+		[Switch]$ExactMatch
+	)
+
 	Begin{
 
 	}
@@ -99,19 +125,37 @@ function Get-WLANProfile
 				}   
 			}
 
-		$WLAN_Password = $WLAN_Password_PlainText
+			# As SecureString or plain text
+			if($ShowPassword) 
+			{
+				$WLAN_Password = $WLAN_Password_PlainText
+			}
+			else
+			{
+				$WLAN_Password = $WLAN_Password_PlainText
+			}
 
-		# Built the custom PSObject
-		$WLAN_Profile = [pscustomobject] @{
-			Name = $WLAN_Name
-			SSID = $WLAN_SSID
-			Authentication = $WLAN_Authentication
-			Password = $WLAN_Password
+			# Built the custom PSObject
+			$WLAN_Profile = [pscustomobject] @{
+				Name = $WLAN_Name
+				SSID = $WLAN_SSID
+				Authentication = $WLAN_Authentication
+				Password = $WLAN_Password
+			}
+
+			# Add the custom PSObject to the array
+			if($PSBoundParameters.ContainsKey('Search'))
+			{
+				if((($WLAN_Profile.Name -like $Search) -or ($WLAN_Profile.SSID -like $Search)) -and (-not($ExactMatch) -or ($WLAN_Profile.Name -eq $Search) -or ($WLAN_Profile.SSID -eq $Search)))
+				{
+					$WLAN_Profile
+				} 
+			}
+			else
+			{
+				$WLAN_Profile
+			}        
 		}
-
-      $WLAN_Profile
-  	}
-			
 	}
 
 	End{
